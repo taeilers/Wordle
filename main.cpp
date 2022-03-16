@@ -3,8 +3,17 @@
 using namespace sf;
 
 char chars[6][5];
-Text text[6][5];
-RectangleShape letterBox[6][5];
+
+class Letterbox : public Text, public RectangleShape
+{
+    public:
+        Letterbox() {};
+ 
+        void setLetterColor(Color color) { Text::setFillColor(color); }
+        void setBoxColor(Color color) { RectangleShape::setFillColor(color); }
+        void setPosition(float x, float y) { RectangleShape::setPosition(x, y); 
+                                            Text::setPosition(x, y); }
+};
 
 void input(char chr)
 {
@@ -35,6 +44,8 @@ int main()
 {
     RenderWindow window(VideoMode(400, 400), "Wordle");
 
+    Letterbox letterboxes[6][5];
+
     sf::Font font;
     font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
     
@@ -45,12 +56,10 @@ int main()
         {
             letterBoxPos[0] += 60.f;
             letterBoxPos[1] *= i;
-            text[i][j].setFillColor(sf::Color::White);
-            text[i][j].setFont(font);
-            text[i][j].setPosition(Vector2f(75.f, 25.f));
-            letterBox[i][j].setPosition(letterBoxPos[0], letterBoxPos[1]);
-            letterBox[i][j].setSize(Vector2f(50.f, 50.f));
-            letterBox[i][j].setFillColor(Color::Blue);
+            letterboxes[i][j].setPosition(letterBoxPos[0], letterBoxPos[1]);
+            letterboxes[i][j].setSize(Vector2f(50.f, 50.f));
+            letterboxes[i][j].setLetterColor(Color::Blue);
+            letterboxes[i][j].setBoxColor(Color::White);
         }
     }
 
@@ -82,7 +91,7 @@ int main()
             for (int j=0; j<5; j++)
             {
                 //window.draw(letterBox[i][j]);
-                window.draw(text[i][j]);
+                window.draw(letterboxes[i][j]);
             }
         }
         window.display();
