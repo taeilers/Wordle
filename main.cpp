@@ -6,15 +6,20 @@ RectangleShape boxes[6][5];
 Text letters[6][5];
 String answer = "SWIFT";
 
-RenderWindow window(VideoMode(400, 400), "Wordle");
-RectangleShape bg(Vector2f(400, 400));
+
 sf::Font font;
 
 class Game
 {
     bool solved = false;
+
     public:
+        RenderWindow window;
+        RectangleShape bg;
+        bool victory = false;
         Event event;
+        Game() : bg(Vector2f(400, 400)), window(VideoMode(400, 400), "Wordle") {}
+
 
         void newField()
         {
@@ -45,6 +50,7 @@ class Game
             }
         }
 
+
         bool match(int i)
         {
             String match = "";
@@ -74,18 +80,6 @@ class Game
             else return false;
         }
 
-        void victory(bool victory)
-        {
-            if (victory)
-            {
-                window.clear();
-                window.draw(bg);
-                Text str;
-                str.setString("Well done!The answer is " + answer);
-                window.draw(str);
-            }
-            return;
-        }
 
         void input(char chr)
         {
@@ -110,7 +104,7 @@ class Game
                 {
                     if (match(i))
                     {
-                        victory(true);
+                        victory = true;
                         return; //true;
                     }
                     j = 0;
@@ -126,44 +120,59 @@ class Game
         }
 };
 
-
-
-
-
 int main()
-{
+{;
     Game game;
-    bg.setFillColor(Color(220, 220, 220));
+    game.bg.setFillColor(Color(220, 220, 220));
     game.newField();
 
-
-    while (window.isOpen())
+    while (game.window.isOpen())
     {
-        window.clear();
-        window.draw(bg);
+        //game.window.clear();
+        game.window.draw(game.bg);
         for (int i = 0; i < 6; i++)
         {
             for (int j = 0; j < 5; j++)
             {
-                window.draw(boxes[i][j]);
-                window.draw(letters[i][j]);
+                game.window.draw(boxes[i][j]);
+                game.window.draw(letters[i][j]);
             }
         }
-        window.display();
+        game.window.display();
 
-        while (window.pollEvent(game.event))
+
+        while (game.window.pollEvent(game.event))
         {
             switch (game.event.type)
             {
                 case Event::Closed:
                 {
-                    window.close();
+                    game.window.close();
                     break;
                 }
                 case Event::TextEntered:
                 {
                     game.input(toupper(game.event.text.unicode));
                     break;
+                }
+            }
+
+
+            if (game.victory)
+            {
+                Text str;
+                str.setString("Well done!The answer is\n" + answer + "\n\nType y to play again or n to quit.");
+                str.setFont(font);
+
+                game.window.clear();
+                game.window.draw(game.bg);
+                game.window.draw(str);
+                game.window.display();
+                while (true)
+                {
+                    game.window.pollEvent(game.event);
+                    if (game.event.text.unicode == 'n') game.window.close();
+                    else if (game.event.text.unicode == 'y') game;
                 }
             }
         }
